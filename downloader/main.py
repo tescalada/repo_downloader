@@ -1,13 +1,15 @@
-import gitlab
 import subprocess
 import os
 
+import gitlab
 
+
+# TODO: move to a config file
 ALIASES = {
     'sparkmeter': 'sm',
 }
-
 REPO_FOLDER = '/Devel'
+USE_SSH = True
 
 
 def alias(path):
@@ -30,15 +32,17 @@ def alias(path):
 
 def download_starred():
     gl = gitlab.Gitlab.from_config()
-    for project in gl.projects.list(owned=True, all=True):
+    for project in gl.projects.list(owned=True, all=False, starred=True):
         # determine the right path for this repo
         path = alias(project.path_with_namespace)
-        path = os.path.join(REPO_FOLDER, path)
-        git_url = project.http_url_to_repo
-        #print(path)
+        path = os.path.expanduser(os.path.join('~', REPO_FOLDER, path))
+        if USE_SSH:
+            git_url = project.ssh_url_to_repo
+        else:
+            git_url = project.http_url_to_repo
         # clone the repo
         subprocess.call(['git', 'clone', git_url, path])
 
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     download_starred()

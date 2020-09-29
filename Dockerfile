@@ -1,6 +1,6 @@
 FROM python:3
 
-ADD main.py /
+ADD downloader/main.py /
 ADD requirements.txt /
 
 RUN pip install -r requirements.txt
